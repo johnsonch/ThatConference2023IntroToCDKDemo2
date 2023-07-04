@@ -9,7 +9,7 @@ export class BucketsStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: cdk.StackProps) {
     super(scope, id, props);
 
-    const elbLogBucket = new s3.Bucket(this, 'tccc23-log-bucket', {
+    const elbLogBucket = new s3.Bucket(this, 'that-conf-cdk-demo-23-log-bucket', {
       bucketName: 'tccc23-log-bucket',
       versioned: false,
       removalPolicy: cdk.RemovalPolicy.DESTROY,
