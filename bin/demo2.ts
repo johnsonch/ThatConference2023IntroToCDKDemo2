@@ -14,12 +14,12 @@ const vpcStack = new VPCStack(app, 'vpc-stack', {
 
 const bucketsStack = new BucketsStack(app, 'buckets-stack', {
   stackName: 'buckets-stack',
-  env: { region: 'us-east-1' }
+  env: { region: 'us-east-1' },
 })
 
 const speedTestStack = new SpeedTestStack(app, 'speed-test-stack', {
   vpc: vpcStack.vpc,
   stackName: 'speed-test-stack',
   elbLogBucket: bucketsStack.elbLogBucket,
-  env: { region: 'us-east-1' }
+  env: { region: 'us-east-1' },
 })
