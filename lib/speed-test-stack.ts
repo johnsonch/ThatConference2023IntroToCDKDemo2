@@ -3,11 +3,12 @@ import * as cdk from 'aws-cdk-lib';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as ecs from "aws-cdk-lib/aws-ecs";
 import * as ecs_patterns from "aws-cdk-lib/aws-ecs-patterns";
+import * as s3 from "aws-cdk-lib/aws-s3";
 
 
-// 👇 extend the props interface of Ec2Stack
 interface SpeedTestProps  extends cdk.StackProps {
   vpc: ec2.Vpc;
+  elbLogBucket: s3.Bucket;
 }
 
 export class SpeedTestStack extends cdk.Stack {
@@ -21,7 +22,7 @@ export class SpeedTestStack extends cdk.Stack {
       vpc: vpc
     });
 
-    new ecs_patterns.ApplicationLoadBalancedFargateService(this, "MyFargateService", {
+    const service = new  ecs_patterns.ApplicationLoadBalancedFargateService(this, "MyFargateService", {
       cluster: cluster, // Required
       cpu: 256, // Default is 256
       desiredCount: 1, // Default is 1
@@ -30,8 +31,7 @@ export class SpeedTestStack extends cdk.Stack {
       publicLoadBalancer: true // Default is true
     });
 
-    //TODO add logging
+    service.loadBalancer.logAccessLogs(props.elbLogBucket, 'elb-access-logs')
 
-
-  } // end of constructor
-} // end of class
+  }
+}

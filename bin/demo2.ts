@@ -8,14 +8,18 @@ import { SpeedTestStack } from '../lib/speed-test-stack';
 const app = new cdk.App();
 
 const vpcStack = new VPCStack(app, 'vpc-stack', {
-  stackName: 'vpc-stack'
+  stackName: 'vpc-stack',
+  env: { region: 'us-east-1' }
 })
 
 const bucketsStack = new BucketsStack(app, 'buckets-stack', {
-  stackName: 'buckets-stack'
+  stackName: 'buckets-stack',
+  env: { region: 'us-east-1' }
 })
 
 const speedTestStack = new SpeedTestStack(app, 'speed-test-stack', {
   vpc: vpcStack.vpc,
-  stackName: 'speed-test-stack'
+  stackName: 'speed-test-stack',
+  elbLogBucket: bucketsStack.elbLogBucket,
+  env: { region: 'us-east-1' }
 })
