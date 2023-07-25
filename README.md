@@ -170,6 +170,7 @@ For our S3 resoruces lets create `lib/buckets-stack.ts` and add the following bo
 ```
 import { Construct } from 'constructs';
 import * as cdk from 'aws-cdk-lib';
+import * as s3 from 'aws-cdk-lib/aws-s3';
 
 export class BucketsStack extends cdk.Stack {
 
