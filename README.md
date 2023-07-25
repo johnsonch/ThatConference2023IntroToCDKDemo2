@@ -303,7 +303,7 @@ We'll need to pass the bucket into this stack
 
 In `bin/demo2.ts` we're going to add `elbLogBucket: bucketsStack.elbLogBucket` to our call to the speed test stack.
 
-Then in our speed test stack we're going to add `elbLogBucket: s3.Bucket;` to the interface.
+Then in our speed test stack we're going to add `elbLogBucket: s3.Bucket;` to the interface. In order for that not to error we'll also need to import the S3 lib `import * as s3 from 'aws-cdk-lib/aws-s3';`
 
 Below our deffintion of the `ApplicationLoadBalancedFargateService` we can use a construct to add access logging. However we're going to need to modify our service deffintion so we can act on the object.
 
