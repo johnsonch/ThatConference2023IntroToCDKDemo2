@@ -20,28 +20,10 @@ export class DynamoDBStack extends cdk.Stack {
     const globalTable = new dynamodb.Table(this, 'Table', {
       tableName,
       partitionKey,
-      replicationRegions: ['us-west-2'],
+      replicationRegions: props.replicationRegions,
       replicationTimeout: Duration.hours(3),
       removalPolicy: cdk.RemovalPolicy.DESTROY, // This is for demo purposes, use the appropriate policy for production
     });
 
-    // Add provisioned throughput settings
-    //globalTable.addProvisionedReadCapacity(10);
-    //globalTable.addProvisionedWriteCapacity(10);
-
-    // Enable automatic scaling
-    //globalTable.enableAutoScaling({
-      //readCapacityScaling: {
-        //targetUtilization: 70,
-        //scaleInCooldown: Duration.seconds(60),
-        //scaleOutCooldown: Duration.seconds(60),
-      //},
-      //writeCapacityScaling: {
-        //targetUtilization: 70,
-        //scaleInCooldown: Duration.seconds(60),
-        //scaleOutCooldown: Duration.seconds(60),
-      //},
-    //});
-
-  } // end of constructor
-} // end of class
+  }
+}
