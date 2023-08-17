@@ -4,6 +4,8 @@ import * as cdk from 'aws-cdk-lib';
 import { VPCStack } from '../lib/vpc-stack';
 import { BucketsStack } from '../lib/buckets-stack';
 import { SpeedTestStack } from '../lib/speed-test-stack';
+import { DynamoDBStack } from '../lib/dynamo-db-stack';
+
 
 const app = new cdk.App();
 
@@ -21,5 +23,10 @@ const speedTestStack = new SpeedTestStack(app, 'speed-test-stack', {
   vpc: vpcStack.vpc,
   stackName: 'speed-test-stack',
   elbLogBucket: bucketsStack.elbLogBucket,
+  env: { region: 'us-east-1' },
+})
+
+const dynamodbStack = new DynamoDBStack(app, 'dynamo-db-stack', {
+  stackName: 'dynamo-db-stack',
   env: { region: 'us-east-1' },
 })
