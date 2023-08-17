@@ -4,27 +4,25 @@ import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import { Duration } from 'aws-cdk-lib/core';
 
 
-
+interface DynamoDBProps  extends cdk.StackProps {
+  replicationRegions?: string[];
+}
 
 export class DynamoDBStack extends cdk.Stack {
 
-  constructor(scope: Construct, id: string, props: cdk.StackProps) {
+  constructor(scope: Construct, id: string, props: DynamoDBProps) {
     super(scope, id, props);
 
     // Create DynamoDB table
     const tableName = 'MyGlobalTable';
     const partitionKey = { name: 'ItemId', type: dynamodb.AttributeType.STRING };
 
-    const table = new dynamodb.Table(this, 'MyGlobalTable', {
+    const globalTable = new dynamodb.Table(this, 'Table', {
       tableName,
       partitionKey,
-      removalPolicy: cdk.RemovalPolicy.DESTROY, // This is for demo purposes, use the appropriate policy for production
-    });
-
-    const globalTable = new dynamodb.Table(this, 'Table', {
-      partitionKey: { name: 'id', type: dynamodb.AttributeType.STRING },
-      replicationRegions: ['us-east-2', 'us-west-1'],
+      replicationRegions: ['us-west-2'],
       replicationTimeout: Duration.hours(3),
+      removalPolicy: cdk.RemovalPolicy.DESTROY, // This is for demo purposes, use the appropriate policy for production
     });
 
     // Add provisioned throughput settings

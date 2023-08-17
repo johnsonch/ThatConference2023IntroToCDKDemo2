@@ -9,24 +9,32 @@ import { DynamoDBStack } from '../lib/dynamo-db-stack';
 
 const app = new cdk.App();
 
-const vpcStack = new VPCStack(app, 'vpc-stack', {
-  stackName: 'vpc-stack',
-  env: { region: 'us-east-1' }
-})
+const regions = ['us-east-1', 'us-west-2'];
 
-const bucketsStack = new BucketsStack(app, 'buckets-stack', {
-  stackName: 'buckets-stack',
-  env: { region: 'us-east-1' },
-})
+for (var region of regions) {
+  const vpcStack = new VPCStack(app, `vpc-stack-${region}`, {
+    stackName: `vpc-stack-${region}`,
+    env: { region: region }
+  })
 
-const speedTestStack = new SpeedTestStack(app, 'speed-test-stack', {
-  vpc: vpcStack.vpc,
-  stackName: 'speed-test-stack',
-  elbLogBucket: bucketsStack.elbLogBucket,
-  env: { region: 'us-east-1' },
-})
+  const bucketsStack = new BucketsStack(app, `buckets-stack-${region}`, {
+    stackName: `buckets-stack-${region}`,
+    region: region,
+    env: { region: region }
+  })
 
-const dynamodbStack = new DynamoDBStack(app, 'dynamo-db-stack', {
+  const speedTestStack = new SpeedTestStack(app, `speed-test-stack-${region}`, {
+    vpc: vpcStack.vpc,
+    stackName: `speed-test-stack-${region}`,
+    elbLogBucket: bucketsStack.elbLogBucket,
+    env: { region: region }
+  })
+
+}
+
+// DynamoDB doesn't need to be created in every region
+const dynamodbStack = new DynamoDBStack(app, `dynamo-db-stack`, {
   stackName: 'dynamo-db-stack',
-  env: { region: 'us-east-1' },
+  replicationRegions: ['us-west-2'],
+  env: { region: 'us-east-1' }
 })

@@ -2,15 +2,19 @@ import { Construct } from 'constructs';
 import * as cdk from 'aws-cdk-lib';
 import * as s3 from "aws-cdk-lib/aws-s3";
 
+interface BucketProps  extends cdk.StackProps {
+  region: string;
+}
 
 
 export class BucketsStack extends cdk.Stack {
   readonly elbLogBucket: s3.Bucket;
-  constructor(scope: Construct, id: string, props: cdk.StackProps) {
+
+  constructor(scope: Construct, id: string, props: BucketProps) {
     super(scope, id, props);
 
     const elbLogBucket = new s3.Bucket(this, 'that-conf-cdk-demo-23-log-bucket', {
-      bucketName: 'tccc23-log-bucket',
+      bucketName: `tc23-log-bucket-${props.region}`,
       versioned: false,
       removalPolicy: cdk.RemovalPolicy.DESTROY,
       encryption: s3.BucketEncryption.S3_MANAGED,
