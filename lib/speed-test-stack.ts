@@ -4,14 +4,10 @@ import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as ecs from "aws-cdk-lib/aws-ecs";
 import * as ecs_patterns from "aws-cdk-lib/aws-ecs-patterns";
 import * as s3 from "aws-cdk-lib/aws-s3";
+
 interface SpeedTestProps  extends cdk.StackProps {
-<<<<<<< HEAD
-  vpc: ec2.Vpc;
-  elbLogBucket: s3.Bucket;
-=======
   vpc: ec2.Vpc,
   elbLogBucket: s3.Bucket
->>>>>>> 2ae8676 (working logging)
 }
 
 export class SpeedTestStack extends cdk.Stack {
@@ -34,14 +30,6 @@ export class SpeedTestStack extends cdk.Stack {
       publicLoadBalancer: true, // Default is true
     });
 
-<<<<<<< HEAD
     service.loadBalancer.logAccessLogs(props.elbLogBucket, 'elb-access-logs')
   }
 }
-=======
-    //TODO add logging
-    service.loadBalancer.logAccessLogs(props.elbLogBucket, 'my-prefix');
-
-  } // end of constructor
-} // end of class
->>>>>>> 2ae8676 (working logging)
