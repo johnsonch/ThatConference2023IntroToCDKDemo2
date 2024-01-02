@@ -14,15 +14,28 @@ export class DynamoDBStack extends cdk.Stack {
     super(scope, id, props);
 
     // Create DynamoDB table
-    const tableName = 'MyGlobalTable';
-    const partitionKey = { name: 'ItemId', type: dynamodb.AttributeType.STRING };
+    const tableName = 'dynamoid_secureframe_development_authentications';
 
-    const globalTable = new dynamodb.Table(this, 'Table', {
-      tableName,
-      partitionKey,
-      replicationRegions: props.replicationRegions,
-      replicationTimeout: Duration.hours(3),
-      removalPolicy: cdk.RemovalPolicy.DESTROY, // This is for demo purposes, use the appropriate policy for production
+    let regionToReplicateTo = []
+    for ( var region of props.replicationRegions! ){
+      regionToReplicateTo.push( { region: region } )
+    }
+
+    new dynamodb.CfnGlobalTable(this, tableName, {
+      attributeDefinitions: [{
+        attributeName: 'id',
+        attributeType: 'S',
+      }],
+      keySchema: [{
+        attributeName: 'id',
+        keyType: 'HASH',
+      }],
+      replicas: regionToReplicateTo,
+      billingMode: 'PAY_PER_REQUEST',
+      tableName: tableName,
+      streamSpecification: {
+        streamViewType: 'NEW_IMAGE',
+      },
     });
 
   }

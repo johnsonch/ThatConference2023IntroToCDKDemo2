@@ -9,7 +9,8 @@ import { DynamoDBStack } from '../lib/dynamo-db-stack';
 
 const app = new cdk.App();
 
-const regions = ['us-east-1', 'us-west-2'];
+// const regions = ['us-east-1', 'us-west-2'];
+const regions = ['us-east-1'];
 
 for (var region of regions) {
   const vpcStack = new VPCStack(app, `vpc-stack-${region}`, {
@@ -29,12 +30,11 @@ for (var region of regions) {
     elbLogBucket: bucketsStack.elbLogBucket,
     env: { region: region }
   })
-
 }
 
 // DynamoDB doesn't need to be created in every region
-const dynamodbStack = new DynamoDBStack(app, `dynamo-db-stack`, {
-  stackName: 'dynamo-db-stack',
-  replicationRegions: ['us-west-2'],
-  env: { region: 'us-east-1' }
-})
+//const dynamodbStack = new DynamoDBStack(app, `dynamo-db-stack`, {
+//stackName: 'dynamo-db-stack',
+//replicationRegions: ['us-east-1', 'us-west-2'],
+//env: { region: 'us-east-1' }
+//})
