@@ -1,10 +1,13 @@
 import { Construct } from 'constructs';
+import { Duration } from 'aws-cdk-lib';
+import * as path from 'path';
 import * as cdk from 'aws-cdk-lib';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as ecs from "aws-cdk-lib/aws-ecs";
 import * as ecs_patterns from "aws-cdk-lib/aws-ecs-patterns";
 import * as s3 from "aws-cdk-lib/aws-s3";
 import * as lambda from 'aws-cdk-lib/aws-lambda';
+import * as lambdaRuby from 'cdk-lambda-ruby';
 import * as events from 'aws-cdk-lib/aws-events'
 import * as targets from 'aws-cdk-lib/aws-events-targets'
 
@@ -27,7 +30,7 @@ export class SpeedTestStack extends cdk.Stack {
     const service = new ecs_patterns.ApplicationLoadBalancedFargateService(this, "MyFargateService", {
       cluster: cluster, // Required
       cpu: 256, // Default is 256
-      desiredCount: 1, // Default is 1
+      desiredCount: 3, // Default is 1
       taskImageOptions: { image: ecs.ContainerImage.fromRegistry("linuxserver/librespeed") },
       memoryLimitMiB: 512, // Default is 512
       publicLoadBalancer: true, // Default is true
@@ -37,39 +40,28 @@ export class SpeedTestStack extends cdk.Stack {
 
 
     // Create a Lambda function to handle ECS task stop events
-    const stopTaskLambda = new lambda.Function(this, 'StopTaskLambda', {
-      runtime: lambda.Runtime.NODEJS_14_X,
+    const stopTaskLambda = new lambdaRuby.RubyFunction(this, 'MyFunction', {
+      runtime: lambda.Runtime.RUBY_2_7,
+      sourceDirectory: path.join(__dirname, 'lambda/oom-monitor'),
       handler: 'index.handler',
-      code: lambda.Code.fromInline(`
-        exports.handler = async (event) => {
-          console.log('ECS Task stopped:', JSON.stringify(event, null, 2));
-          var AWS = require('aws-sdk');
-          // Log the event to S3 bucket
-          // You can customize this part based on your specific requirements
-          // In this example, the task stop event is logged to a file in the S3 bucket
-          const s3 = new AWS.S3();
-          await s3.putObject({
-            Bucket: '${props.elbLogBucket.bucketName}',
-            Key: 'ecs-task-stop-events.log',
-            Body: JSON.stringify(event, null, 2),
-          }).promise();
-
-          return {
-            statusCode: 200,
-            body: 'Task stop event processed successfully',
-          };
-        };
-      `),
+      environment: {
+        BUCKET_NAME: props.elbLogBucket.bucketName,
+        DD_API_KEY: 'd9ffd6e03d5a5d8a53de5cf3aaeceb41'
+      },
+      timeout: Duration.seconds(10),
+      bundlerConfig: {  // optional
+        without: 'development:test',  // optional, default: 'development:test'
+      },
     });
 
     // Grant necessary permissions for the Lambda function to write to the S3 bucket
-    props.elbLogBucket.grantWrite(stopTaskLambda);
+    props.elbLogBucket.grantReadWrite(stopTaskLambda);
 
     // Create a CloudWatch Events rule to capture ECS task stop events
     const eventRule = new events.Rule(this, 'EcsTaskStopEventRule', {
       eventPattern: {
         source: ['aws.ecs'],
-        detailType: ['ECS Task State Change'],
+        detailType: ['ECS Task State Change', 'ECS Container Instance State Change'],
         detail: {
           lastStatus: ['STOPPED'],
         },
